@@ -1,0 +1,15 @@
+.vscode/
+build/
+
+*.elf
+*.bin
+*.bin.h
+
+*.ko
+*.o
+*.o.cmd
+*.cmd
+*.symvers
+*.mod
+*.mod.c
+*.order

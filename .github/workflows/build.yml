@@ -1,0 +1,21 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build-binary:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Build pico
+      run: |
+        docker build -t udpihbuilder .
+        docker run --rm -v ${PWD}:/project udpihbuilder make pico
+    - uses: actions/upload-artifact@v2
+      with:
+       name: udpih
+       path: |
+        arm_kernel/arm_kernel.bin.h
+        pico/build/udpih.uf2
