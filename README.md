@@ -5,11 +5,15 @@ Exploits the Wii U's USB Host Stack descriptor parsing. Pronounced like "mud pie
 
 ## Requirements
 - A Wii U
-- A Raspberry Pi Pico or Zero
+- One of the devices listed below
 
     *Note: Any other linux device capable of USB device emulation should work as well.  
-    Prebuilt releases are only available for the Pico and Zero.  
+    Prebuilt releases and instructions are only available for the Pico and Zero.  
     I will add more devices below which are confirmed to work.*
+
+### Supported devices:
+- A Raspberry Pi Pico or Zero
+- An unpatched Nintendo Switch capable of running [udpih_nxpayload](https://github.com/GaryOderNichts/udpih_nxpayload)
 
 ## Instructions
 ### Pico
