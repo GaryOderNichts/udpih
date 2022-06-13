@@ -25,6 +25,11 @@ Exploits the Wii U's USB Host Stack descriptor parsing. Pronounced like "mud pie
 The Pico is now flashed and can be used for udpih. Continue with ["Booting the recovery_menu"](#booting-the-recoverymenu) below.
 
 ### Raspberry Pi Zero (Linux)
+> :information_source: To use USB gadgets on the Pi Zero you need to enable the `dwc2` module by running the commands below:  
+> `echo "dtoverlay=dwc2" | sudo tee -a /boot/config.txt`  
+> `echo "dwc2" | sudo tee -a /etc/modules`  
+> After running the commands reboot the system.
+
 - Install the required dependencies:
     ```bash
     sudo apt install build-essential raspberrypi-kernel-headers
