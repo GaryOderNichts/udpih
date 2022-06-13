@@ -28,7 +28,8 @@ set(UDPIH_LIBS
 )
 
 add_compile_options(
-
+    # not supported on the pico (reduces binary size)
+    -DNO_HIGH_SPEED
 )
 
 include_directories(

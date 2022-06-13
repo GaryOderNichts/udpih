@@ -141,7 +141,7 @@ int udpih_gadget_setup(struct usb_gadget* gadget, const struct usb_ctrlrequest* 
         device->common_dev.state = STATE_DEVICE0_CONNECTED;
     }
 
-    result = device_setup(&device->common_dev, ctrlrequest, request->buf);
+    result = device_setup(&device->common_dev, ctrlrequest, request->buf, gadget->speed == USB_SPEED_HIGH);
 
     // queue the endpoint request
     if (result >= 0) {

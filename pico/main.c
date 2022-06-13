@@ -52,7 +52,7 @@ void usb_setup_packet_callback(struct usb_ctrlrequest *pkt)
     }
     else {
         // let the device handle the packet
-        res = device_setup(&device, pkt, ep0_buffer);
+        res = device_setup(&device, pkt, ep0_buffer, false);
         if (res < 0 && res != SETUP_NO_DATA) {
             // Stall EP0 on failure
             usb_device_stall_endpoint(EP0_IN_ADDR);

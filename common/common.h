@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <errno.h>
 #include <string.h>
 #include <assert.h>
@@ -79,4 +80,4 @@ typedef struct udpih_device {
 
 int device_bind(udpih_device_t* device, uint16_t maxpacket);
 
-int device_setup(udpih_device_t* device, const struct usb_ctrlrequest* ctrlrequest, uint8_t* buf);
+int device_setup(udpih_device_t* device, const struct usb_ctrlrequest* ctrlrequest, uint8_t* buf, bool high_speed);

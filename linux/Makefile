@@ -5,7 +5,7 @@ KERNEL_DIR ?= /lib/modules/$(shell uname -r)/build
 obj-m += udpih.o
 udpih-objs += main.o utils.o ../common/device.o
 
-ccflags-y += -DHIGH_SPEED -Wno-unused-variable -Wno-declaration-after-statement
+ccflags-y += -Wno-unused-variable -Wno-declaration-after-statement
 
 all:
 	make -C $(KERNEL_DIR) M=$(ROOT_DIR) modules
