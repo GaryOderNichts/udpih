@@ -71,12 +71,15 @@ int load_recovery(void)
 
     res = FSA_Mount(fsaHandle, "/dev/sdcard01", "/vol/storage_udpihsd", 2, NULL, 0);
     if (res < 0) {
-        goto error;
+        IOS_Close(fsaHandle);
+        return res;
     }
 
     res = FSA_OpenFile(fsaHandle, "/vol/storage_udpihsd/recovery_menu", "rb", &fileHandle);
     if (res < 0) {
-        goto error;
+        FSA_Unmount(fsaHandle, "/vol/storage_udpihsd", 2);
+        IOS_Close(fsaHandle);
+        return res;
     }
 
     readBuffer = IOS_HeapAllocAligned(0xcaff, READ_BUFFER_SIZE, 0x40);
@@ -136,5 +139,5 @@ error: ;
         ((void (*)(const char*)) header.entry)("udpih");
     }
 
-    return (res >= 0) ? 0 : res;
+    return res;
 }
