@@ -13,7 +13,7 @@ Exploits the Wii U's USB Host Stack descriptor parsing. Pronounced like "mud pie
 
 ### Supported devices:
 - A Raspberry Pi Pico or Zero
-- An unpatched Nintendo Switch capable of running [udpih_nxpayload](https://github.com/GaryOderNichts/udpih_nxpayload)
+- A Nintendo Switch capable of running [udpih_nxpayload](https://github.com/GaryOderNichts/udpih_nxpayload)
 
 ## Instructions
 ### Pico
