@@ -23,7 +23,7 @@ UhsServer* _main()
     blockHeader->size = 0x18d360;
     blockHeader->next = NULL;
 
-    UhsDevice* device = (UhsDevice*) 0x102996a0;
+    UhsDevice* device = (UhsDevice*) 0x102992e0;
 
     // set some unfreeable blocks to NULL, so device destruction won't fail
     device->UhsDevStrings = NULL;

