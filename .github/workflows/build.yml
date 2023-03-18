@@ -4,18 +4,19 @@ on: [push, pull_request]
 
 jobs:
   build-binary:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: Build pico
       run: |
         docker build -t udpihbuilder .
         docker run --rm -v ${PWD}:/project udpihbuilder make pico
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
-       name: udpih
-       path: |
-        arm_kernel/arm_kernel.bin.h
-        pico/build/udpih.uf2
+        name: udpih
+        path: |
+          arm_kernel/arm_kernel.bin.h
+          pico/build/udpih.uf2
+        if-no-files-found: error
