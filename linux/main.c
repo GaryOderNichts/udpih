@@ -218,7 +218,7 @@ int __init udpih_init(void)
 {
     DEBUG("udpih_init\n");
 
-    return usb_gadget_probe_driver(&gadget_driver);
+    return usb_gadget_register_driver(&gadget_driver);
 }
 
 void __exit udpih_exit(void)
