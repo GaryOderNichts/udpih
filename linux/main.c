@@ -129,7 +129,12 @@ int	udpih_gadget_bind(struct usb_gadget* gadget, struct usb_gadget_driver* drive
     device->ep0_request->complete = udpih_setup_complete;
     gadget->ep0->driver_data = device;
 
-    result = device_bind(&device->common_dev, device->gadget->ep0->maxpacket);
+    // We previously used `device->gadget->ep0->maxpacket` here,
+    // but for some reason it was 0 on some platforms.
+    // 64 should work fine on all platforms.
+    const uint16_t maxpacket = 64u;
+
+    result = device_bind(&device->common_dev, maxpacket);
     if (result < 0) {
         udpih_gadget_unbind(gadget);
         return result;
