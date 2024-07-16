@@ -8,6 +8,7 @@ build/
 *.ko
 *.o
 *.o.cmd
+*.o.d
 *.cmd
 *.symvers
 *.mod
