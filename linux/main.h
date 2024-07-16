@@ -2,6 +2,7 @@
 
 #include <linux/types.h>
 #include <linux/timer.h>
+#include <linux/workqueue.h>
 #include <linux/usb/gadget.h>
 #include "../common/common.h"
 
@@ -12,6 +13,8 @@ typedef struct {
     struct usb_request* ep0_request;
     // timer for the state machine
     struct timer_list state_timer;
+    // work queue for handling states
+    struct work_struct state_work;
     // the common device
     udpih_device_t common_dev;
 } udpih_linux_device_t;

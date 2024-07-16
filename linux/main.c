@@ -10,9 +10,9 @@ MODULE_VERSION("0");
 
 #define EP0_BUF_SIZE 0x10000 // matches UhsDevice's pEp0DmaBuf size
 
-void udpih_handle_state_change(struct timer_list* timer)
+void udpih_state_change_work_callback(struct work_struct* work)
 {
-    udpih_linux_device_t* device = container_of(timer, udpih_linux_device_t, state_timer);
+    udpih_linux_device_t* device = container_of(work, udpih_linux_device_t, state_work);
 
     DEBUG("udpih_handle_state_change %d\n", device->common_dev.state);
 
@@ -41,12 +41,20 @@ void udpih_handle_state_change(struct timer_list* timer)
     }
 }
 
+void udpih_state_change_timer_callback(struct timer_list* timer)
+{
+    udpih_linux_device_t* device = container_of(timer, udpih_linux_device_t, state_timer);
+
+    // Schedule state work here to avoid doing it in the timer context
+    schedule_work(&device->state_work);
+}
+
 void udpih_set_state_timer(udpih_device_t* device, uint32_t ms)
 {
     udpih_linux_device_t* zero_device = container_of(device, udpih_linux_device_t, common_dev);
 
     if (ms == 0) {
-        udpih_handle_state_change(&zero_device->state_timer);
+        udpih_state_change_timer_callback(&zero_device->state_timer);
         return;
     }
 
@@ -101,7 +109,11 @@ int	udpih_gadget_bind(struct usb_gadget* gadget, struct usb_gadget_driver* drive
     device->gadget = gadget;
 
     // setup the state timer
-    timer_setup(&device->state_timer, udpih_handle_state_change, 0);
+    timer_setup(&device->state_timer, udpih_state_change_timer_callback, 0);
+
+    // We need a workqueue since the timer is going to make the callback from within an interrupt context
+    // Some drivers like dwc3 call functions like msleep which cannot be called from within an interrupt context
+    INIT_WORK(&device->state_work, udpih_state_change_work_callback);
 
     device->common_dev.set_state_timer = udpih_set_state_timer;
 
@@ -169,7 +181,9 @@ void udpih_gadget_disconnect(struct usb_gadget* gadget)
             || device->common_dev.state == STATE_DEVICE1_CONNECTED
             || device->common_dev.state == STATE_DEVICE2_CONNECTED) {
             device->common_dev.state = STATE_INIT;
+            // cannot use the _sync versions here, as this might run in an irq context
             del_timer(&device->state_timer);
+            cancel_work(&device->state_work);
         }
     }
 }
@@ -184,7 +198,9 @@ void udpih_gadget_suspend(struct usb_gadget* gadget)
     if (device) {
         // reset device on suspend
         device->common_dev.state = STATE_INIT;
+        // cannot use the _sync versions here, as this might run in an irq context
         del_timer(&device->state_timer);
+        cancel_work(&device->state_work);
     }
 }
 
