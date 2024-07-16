@@ -33,7 +33,7 @@ static const uint8_t heap_repair_data[] = {
 #define DEVICE_PRODUCT_ID 0x1234
 
 // custom request to upload data into the stack
-#define USB_REQ_CUSTOM 0x30
+#define USB_REQ_CUSTOM 0x50
 
 // location of the pEp0DmaBuf (containing the final rop, arm kernel and event)
 #define EP0DMABUF_LOCATION 0x1029d880u
