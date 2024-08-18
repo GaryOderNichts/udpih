@@ -7,11 +7,11 @@ Some devices require additional setup for UDPIH to work. Click on the device you
 
   > :information_source: For the Pi Zero and Zero 2 W you will need 2 USB cables, one for powering the Zero and one which can be connected to the Wii U.  
 
-  > :information_source: For the Pi 4 and 5 you need to provide power through the power headers. Unfortunately the USB-C port handles both power and USB, and the Pi doesn't boot fast enough when plugged into the Wii U. You cannot use any of the USB-A ports in client mode.
+  > :information_source: For the Pi 4 and 5 you need to provide power through the power headers because the USB-C port is the only port the supports USB OTG and must get connected to the Wii U. Unfortunately, when trying to power the Pi over USB-C using the Wii U's USB ports, the Pi doesn't boot fast enough. The USB-A ports do not support USB OTG and cannot be used for this exploit.
 
   > :information_source: This guide expects that you use Raspberry Pi OS.
 
-  To use USB gadgets you need to enable `dwc2` by running the command below:  
+  To use USB gadgets(OTG) you need to enable `dwc2` by running the command below:  
   > :warning: Prior to Raspberry Pi OS Bookworm, Raspberry Pi OS stored the boot partition at `/boot/`.  
 
   ```bash
@@ -78,14 +78,16 @@ Some devices require additional setup for UDPIH to work. Click on the device you
 
 ## Running the UDPIH gadget
 
-> :information_source: You need to insert the module again after rebooting the device.  
+Start your device and leave it running for the duration of the exploit. You will leave the device on for all attempts at getting the timing right.
 
 Run the command below to insert the kernel module into the kernel:
 ```bash
 sudo insmod udpih.ko
 ```
 
-The device is now ready to be used for udpih.  
+The device is now ready to be used for udpih.
+
+> :information_source: If you reboot your udpih device, you will need to load the kernel module again with the above command.
 
 Continue with ["Booting the recovery_menu"](../README.md#booting-the-recovery_menu).
 
