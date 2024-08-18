@@ -7,7 +7,7 @@ Some devices require additional setup for UDPIH to work. Click on the device you
 
   > :information_source: For the Pi Zero and Zero 2 W you will need 2 USB cables, one for powering the Zero and one which can be connected to the Wii U.  
 
-  > :information_source: For the Pi 4 and 5 you need to provide power through the power headers because the USB-C port is the only port the supports USB OTG and must get connected to the Wii U. Unfortunately, when trying to power the Pi over USB-C using the Wii U's USB ports, the Pi doesn't boot fast enough. The USB-A ports do not support USB OTG and cannot be used for this exploit.
+  > :information_source: For the Pi 4 and 5 you need to provide power through the power headers because the USB-C port is the only port the supports USB OTG and must get connected to the Wii U. Unfortunately, when trying to power the Pi over USB-C using the Wii U's USB ports, the Pi doesn't boot fast enough. The USB-A ports do not support USB OTG and cannot be used for this exploit: you **must** connect the USB-C port to the Wii U during the exploit.
 
   > :information_source: This guide expects that you use Raspberry Pi OS.
 
