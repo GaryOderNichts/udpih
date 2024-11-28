@@ -15,7 +15,9 @@ jobs:
         docker run --rm -v ${PWD}:/project udpihbuilder make pico
     - uses: actions/upload-artifact@v2
       with:
-       name: udpih
-       path: |
-        arm_kernel/arm_kernel.bin.h
-        pico/build/udpih.uf2
+        name: udpih
+        path: |
+          arm_kernel/arm_kernel.bin.h
+          pico/build_rp2040/udpih.uf2
+          pico/build_rp2350/udpih.uf2
+        if-no-files-found: error
