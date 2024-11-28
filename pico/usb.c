@@ -132,8 +132,7 @@ void usb_device_stall_endpoint(uint8_t ep_address)
  */
 void usb_device_init(void) {
     // Reset usb controller
-    reset_block(RESETS_RESET_USBCTRL_BITS);
-    unreset_block_wait(RESETS_RESET_USBCTRL_BITS);
+    reset_unreset_block_num_wait_blocking(RESET_USBCTRL);
 
     // Clear any previous state in dpram just in case
     memset(usb_dpram, 0, sizeof(*usb_dpram)); // <1>

@@ -18,5 +18,6 @@ jobs:
         name: udpih
         path: |
           arm_kernel/arm_kernel.bin.h
-          pico/build/udpih.uf2
+          pico/build_rp2040/udpih.uf2
+          pico/build_rp2350/udpih.uf2
         if-no-files-found: error

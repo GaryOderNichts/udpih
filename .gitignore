@@ -1,5 +1,5 @@
 .vscode/
-build/
+build*/
 
 *.elf
 *.bin
@@ -14,3 +14,5 @@ build/
 *.mod
 *.mod.c
 *.order
+
+*.uf2
