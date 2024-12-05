@@ -6,18 +6,41 @@ jobs:
   build-binary:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout udpih
+      uses: actions/checkout@v4
       with:
+        path: udpih
         submodules: recursive
-    - name: Build pico
+
+    - name: Checkout pico-sdk
+      uses: actions/checkout@v4
+      with:
+        repository: raspberrypi/pico-sdk
+        ref: master
+        path: pico-sdk
+        submodules: recursive
+
+    - name: Setup pico-sdk
       run: |
+        sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+
+    - name: Build arm_kernel code
+      run: |
+        cd ${{github.workspace}}/udpih
         docker build -t udpihbuilder .
-        docker run --rm -v ${PWD}:/project udpihbuilder make pico
+        docker run --rm -v ${PWD}:/project udpihbuilder make arm_kernel
+  
+    - name: Build pico code
+      run: |
+        export PICO_SDK_PATH=${{github.workspace}}/pico-sdk
+        cd ${{github.workspace}}/udpih/pico
+        make
+
     - uses: actions/upload-artifact@v4
       with:
         name: udpih
         path: |
-          arm_kernel/arm_kernel.bin.h
-          pico/build_rp2040/udpih.uf2
-          pico/build_rp2350/udpih.uf2
+          ${{github.workspace}}/udpih/arm_kernel/arm_kernel.bin.h
+          ${{github.workspace}}/udpih/pico/build_rp2040/udpih.uf2
+          ${{github.workspace}}/udpih/pico/build_rp2350/udpih.uf2
         if-no-files-found: error
