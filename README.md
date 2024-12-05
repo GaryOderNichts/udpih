@@ -12,7 +12,7 @@ Exploits the Wii U's USB Host Stack descriptor parsing. Pronounced like "mud pie
     I will add more devices below which are confirmed to work.*
 
 ### Supported devices:
-- Raspberry Pi Pico
+- Raspberry Pi Pico (W) / Pico 2 (W)
 - Raspberry Pi Zero (W) / A / A+ / Zero 2 W / 4 / 5
 - Steam Deck
 - Nintendo Switch capable of running [udpih_nxpayload](https://github.com/GaryOderNichts/udpih_nxpayload)
@@ -20,13 +20,14 @@ Exploits the Wii U's USB Host Stack descriptor parsing. Pronounced like "mud pie
 ## Instructions
 ### Device Setup
 Follow the setup guide for the device you want to use below:
-- [Raspberry Pi Pico](./docs/setup-pico.md)
+- [Raspberry Pi Pico / Pico 2](./docs/setup-pico.md)
 - [Raspberry Pi Zero (W) / A / A+ / Zero 2 W / 4 / 5](./docs/setup-linux.md)
 - [Steam Deck](./docs/setup-linux.md)
 - [Nintendo Switch](https://github.com/GaryOderNichts/udpih_nxpayload#Instructions)
 
 ### Booting the recovery_menu
-> :warning: Important notes for this to work:
+> [!IMPORTANT]  
+> Important notes for this to work:
 > - Make sure **no** other USB devices are attached to the console.
 > - Only use USB ports on the **front** of the console, the back ports **will not** work.
 > - If your console has standby mode enabled, pull the power plug and turn it on from a full coldboot state.

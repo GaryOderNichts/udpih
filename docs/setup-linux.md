@@ -87,7 +87,8 @@ sudo insmod udpih.ko
 
 The device is now ready to be used for udpih.
 
-> :information_source: If you reboot your udpih device, you will need to load the kernel module again with the above command.
+> [!NOTE]
+> If you reboot your udpih device, you will need to load the kernel module again with the above command.
 
 Continue with ["Booting the recovery_menu"](../README.md#booting-the-recovery_menu).
 
