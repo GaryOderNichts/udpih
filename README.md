@@ -15,6 +15,7 @@ Exploits the Wii U's USB Host Stack descriptor parsing. Pronounced like "mud pie
 - Raspberry Pi Pico (W) / Pico 2 (W)
 - Raspberry Pi Zero (W) / A / A+ / Zero 2 W / 4 / 5
 - Steam Deck
+- Espressif ESP32 S2 / S3
 - Nintendo Switch capable of running [udpih_nxpayload](https://github.com/GaryOderNichts/udpih_nxpayload)
 
 ## Instructions
@@ -23,6 +24,7 @@ Follow the setup guide for the device you want to use below:
 - [Raspberry Pi Pico / Pico 2](./docs/setup-pico.md)
 - [Raspberry Pi Zero (W) / A / A+ / Zero 2 W / 4 / 5](./docs/setup-linux.md)
 - [Steam Deck](./docs/setup-linux.md)
+- [Espressif ESP32 S2 / S3](./docs/setup-esp32.md)
 - [Nintendo Switch](https://github.com/GaryOderNichts/udpih_nxpayload#Instructions)
 
 ### Booting the recovery_menu
@@ -40,18 +42,17 @@ Follow the setup guide for the device you want to use below:
   If you get no video output or a distorted screen, your timing was most likely wrong.
 - After a few seconds you should be in the recovery menu.
 
+> [!NOTE]
+> If your console turns off after performing the exploit, the `recovery_menu` file couldn't be loaded from your Wii U's SD Card.
+
 Check out the [recovery_menu README](https://github.com/GaryOderNichts/recovery_menu) for more information about this menu.
 
 ## Building
+Building the kernel code requires devkitARM. Device specific instructions can be found in the documentation.
+
 ```bash
-# build the docker container
-docker build -t udpihbuilder .
-
-# build the pico code
-docker run -it --rm -v ${PWD}:/project udpihbuilder make pico
-
-# to only build the arm kernel code
-docker run -it --rm -v ${PWD}:/project udpihbuilder make arm_kernel
+# only build the arm kernel code
+make arm_kernel
 ```
 
 **Special thanks to Maschell, rw-r-r-0644, QuarkTheAwesome, vgmoose, exjam, dimok789, and everyone else who contributed to the Wii U scene!**

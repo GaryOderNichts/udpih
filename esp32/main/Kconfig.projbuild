@@ -1,0 +1,20 @@
+menu "UDPIH Configuration"
+
+    orsource "$IDF_PATH/examples/common_components/env_caps/$IDF_TARGET/Kconfig.env_caps"
+
+    config BLINK_ENABLE
+        bool "Blink Enable"
+        default n
+        help
+            Wether to enable blink or not. Disabled by default for compatibility with as many boards as possible.
+            Only boards with the RGB LED like the official ESP32-S3 devkit are supported at the moment.
+
+    config BLINK_GPIO
+        int "Blink GPIO number"
+        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+        default 48
+        help
+            GPIO number (IOxx) to blink on and off the LED.
+            Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to blink.
+
+endmenu
