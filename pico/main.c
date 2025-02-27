@@ -21,7 +21,7 @@
 #include "common.h"
 
 void set_usb_address(uint8_t address);
-void state_handler_set_timer(udpih_device_t* device, uint32_t ms);
+void state_handler_set_timer(udpih_device_t *device, uint32_t ms);
 
 static bool pending_address_update = false;
 static uint8_t current_usb_address = 0;
@@ -149,7 +149,7 @@ static int64_t state_alarm_handler(alarm_id_t id, void *user_data)
     return 0;
 }
 
-void state_handler_set_timer(udpih_device_t* device, uint32_t ms)
+void state_handler_set_timer(udpih_device_t *device, uint32_t ms)
 {
     if (ms == 0) {
         state_handler();

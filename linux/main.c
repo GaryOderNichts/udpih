@@ -6,7 +6,7 @@
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("GaryOderNichts");
 MODULE_DESCRIPTION("Implements a USB Host Stack exploit for the Wii U");
-MODULE_VERSION("0");
+MODULE_VERSION("5");
 
 #define EP0_BUF_SIZE 0x10000 // matches UhsDevice's pEp0DmaBuf size
 
@@ -132,7 +132,7 @@ int	udpih_gadget_bind(struct usb_gadget* gadget, struct usb_gadget_driver* drive
     // We previously used `device->gadget->ep0->maxpacket` here,
     // but for some reason it was 0 on some platforms.
     // 64 should work fine on all platforms.
-    const uint16_t maxpacket = 64u;
+    const uint8_t maxpacket = 64u;
 
     result = device_bind(&device->common_dev, maxpacket);
     if (result < 0) {

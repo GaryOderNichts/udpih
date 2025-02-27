@@ -78,6 +78,6 @@ typedef struct udpih_device {
     int state;
 } udpih_device_t;
 
-int device_bind(udpih_device_t* device, uint16_t maxpacket);
+int device_bind(udpih_device_t* device, uint8_t maxpacket);
 
 int device_setup(udpih_device_t* device, const struct usb_ctrlrequest* ctrlrequest, uint8_t* buf, bool high_speed);

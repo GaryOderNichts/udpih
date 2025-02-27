@@ -252,9 +252,9 @@ static const struct usb_config_descriptor config_descriptor = {
     .bMaxPower              = 50,
 };
 
-int device_bind(udpih_device_t* device, uint16_t maxpacket)
+int device_bind(udpih_device_t* device, uint8_t maxpacket)
 {
-    device_descriptor.bMaxPacketSize0 = cpu_to_le16(maxpacket);
+    device_descriptor.bMaxPacketSize0 = maxpacket;
 
     return 0;
 }
@@ -309,6 +309,7 @@ int device_setup(udpih_device_t *device, const struct usb_ctrlrequest *ctrlreque
                 const uint32_t descriptor5_size = 0x40 * 3;
                 const uint32_t descriptor6_size = 0x2380; // <- point into the middle of the pEp0DmaBuf
 
+                // uhs quirk, uhs uses wIndex instead of the index field in wValue for descriptor indices
                 switch (wIndex) {
                 case 0:
                     if (wLength == sizeof(config_descriptor)) {
