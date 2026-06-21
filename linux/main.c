@@ -2,6 +2,7 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+#include <linux/version.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("GaryOderNichts");
@@ -9,6 +10,15 @@ MODULE_DESCRIPTION("Implements a USB Host Stack exploit for the Wii U");
 MODULE_VERSION("5");
 
 #define EP0_BUF_SIZE 0x10000 // matches UhsDevice's pEp0DmaBuf size
+
+static int udpih_timer_delete(struct timer_list* timer)
+{
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+    return timer_delete(timer);
+#else
+    return del_timer(timer);
+#endif
+}
 
 void udpih_state_change_work_callback(struct work_struct* work)
 {
@@ -187,7 +197,7 @@ void udpih_gadget_disconnect(struct usb_gadget* gadget)
             || device->common_dev.state == STATE_DEVICE2_CONNECTED) {
             device->common_dev.state = STATE_INIT;
             // cannot use the _sync versions here, as this might run in an irq context
-            del_timer(&device->state_timer);
+            udpih_timer_delete(&device->state_timer);
             cancel_work(&device->state_work);
         }
     }
@@ -204,7 +214,7 @@ void udpih_gadget_suspend(struct usb_gadget* gadget)
         // reset device on suspend
         device->common_dev.state = STATE_INIT;
         // cannot use the _sync versions here, as this might run in an irq context
-        del_timer(&device->state_timer);
+        udpih_timer_delete(&device->state_timer);
         cancel_work(&device->state_work);
     }
 }
